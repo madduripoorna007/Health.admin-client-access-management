@@ -18,7 +18,7 @@ USERS_CSV = "users.csv"
 # Ensure CSV headers (create if missing)
 
 
-def ensure_file_exists(path: str, headers: List[str]) -> None:
+def ensure_file_exists(path: str, headers: List[str]):
     # Task: Ensure a CSV exists, create with headers if missing.
     if not os.path.exists(path):
         with open(path, "w", newline="", encoding="utf-8") as f:
@@ -44,7 +44,7 @@ ensure_file_exists(USERS_CSV, [
 # this below format of function signature means, value is type "str" and -> returns List which  consist of strings
 
 
-def parse_list_string(value: str) -> List[str]:
+def parse_list_string(value: str):
     # parse a string that looks like a simple Python list into a Python list of stripped strings.
     if value is None:
         return []
@@ -74,7 +74,7 @@ def parse_list_string(value: str) -> List[str]:
     return [p.strip() for p in v.split(",") if p.strip()]
 
 
-def parse_dict_like_string(value: str) -> Dict[str, Any]:
+def parse_dict_like_string(value: str):
     # Task: Parse a very simple dict-like string into a dictionary (only handles basic "key": value pairs).
     if value is None:
         return {}
@@ -126,12 +126,12 @@ def load_csv_as_df(path: str) -> pd.DataFrame:
     return pd.read_csv(path, dtype=str, keep_default_na=False)
 
 
-def save_df_to_csv(df: pd.DataFrame, path: str) -> None:
+def save_df_to_csv(df: pd.DataFrame, path: str):
     # Save a pandas DataFrame back to its CSV file path.
     df.to_csv(path, index=False)
 
 
-def load_data() -> Dict[str, pd.DataFrame]:
+def load_data():
     # load all databases (appointments, doctors, medical_details, users) into pandas DataFrames.
     appts = load_csv_as_df(APPOINTMENTS_CSV)
     docs = load_csv_as_df(DOCTORS_CSV)
@@ -145,7 +145,7 @@ def load_data() -> Dict[str, pd.DataFrame]:
     return {"appointments": appts, "doctors": docs, "medical_details": meds, "users": users}
 
 
-def save_data(data: Dict[str, pd.DataFrame]) -> None:
+def save_data(data: Dict[str, pd.DataFrame]):
     # Task: Save all DataFrames (appointments, doctors, medical_details, users) back to their CSVs.
     save_df_to_csv(data["appointments"], APPOINTMENTS_CSV)
     save_df_to_csv(data["doctors"], DOCTORS_CSV)
@@ -153,7 +153,7 @@ def save_data(data: Dict[str, pd.DataFrame]) -> None:
     save_df_to_csv(data["users"], USERS_CSV)
 
 
-def get_next_id(df: pd.DataFrame, id_col: str = "id") -> int:
+def get_next_id(df: pd.DataFrame, id_col: str = "id"):
     # Return the next integer ID for a DataFrame (automatically increase).
     if df.empty:
         return 1
@@ -168,7 +168,7 @@ def get_next_id(df: pd.DataFrame, id_col: str = "id") -> int:
 
 
 def conflict_check(doctor_id: int, start_time: str, end_time: str, data: Dict[str, pd.DataFrame],
-                   exclude_appointment_id: Optional[int] = None) -> bool:
+                   exclude_appointment_id: Optional[int] = None) :
     # Check whether a proposed appointment time overlaps with existing appointments of the same doctor.
     appts = data["appointments"]
     try:
@@ -198,7 +198,7 @@ def conflict_check(doctor_id: int, start_time: str, end_time: str, data: Dict[st
 # Authentication
 
 
-def verify_login(username: str, password: str, data: Dict[str, pd.DataFrame]) -> Optional[Dict[str, str]]:
+def verify_login(username: str, password: str, data: Dict[str, pd.DataFrame]):
     # Verify provided credentials against stored plain password; return user row as dict on success.
     users = data["users"]
     matched = users[users["username"] == username]
@@ -214,7 +214,7 @@ def verify_login(username: str, password: str, data: Dict[str, pd.DataFrame]) ->
 
 # Doctor Management (Admin)
 
-def add_doctor(doctor_info: Dict[str, Any], data: Dict[str, pd.DataFrame]) -> Dict[str, Any]:
+def add_doctor(doctor_info: Dict[str, Any], data: Dict[str, pd.DataFrame]):
     # Task: Add a new doctor row into doctors DataFrame and save.
     docs = data["doctors"]
     new_id = get_next_id(docs, "id")
@@ -238,7 +238,7 @@ def add_doctor(doctor_info: Dict[str, Any], data: Dict[str, pd.DataFrame]) -> Di
     return doc_row
 
 
-def edit_doctor(doctor_id: int, updates: Dict[str, Any], data: Dict[str, pd.DataFrame]) -> bool:
+def edit_doctor(doctor_id: int, updates: Dict[str, Any], data: Dict[str, pd.DataFrame]):
     # Task: Edit fields for a doctor row identified by doctor_id and save changes.
     docs = data["doctors"]
     mask = docs["id"].astype(str) == str(doctor_id)
@@ -252,7 +252,7 @@ def edit_doctor(doctor_id: int, updates: Dict[str, Any], data: Dict[str, pd.Data
     return True
 
 
-def remove_doctor(doctor_id: int, data: Dict[str, pd.DataFrame]) -> bool:
+def remove_doctor(doctor_id: int, data: Dict[str, pd.DataFrame]):
     # Task: Remove a doctor from the doctors DataFrame (basic deletion).
     docs = data["doctors"]
     mask = docs["id"].astype(str) == str(doctor_id)
@@ -268,7 +268,7 @@ def remove_doctor(doctor_id: int, data: Dict[str, pd.DataFrame]) -> bool:
 # -----------------------------
 
 
-def add_user(user_info: Dict[str, Any], data: Dict[str, pd.DataFrame]) -> Dict[str, Any]:
+def add_user(user_info: Dict[str, Any], data: Dict[str, pd.DataFrame]):
     # Task: Add a new user to users DataFrame; stores plain password as provided.
     users = data["users"]
     new_id = get_next_id(users, "id")
@@ -292,7 +292,7 @@ def add_user(user_info: Dict[str, Any], data: Dict[str, pd.DataFrame]) -> Dict[s
     return user_row
 
 
-def edit_user(user_id: int, updates: Dict[str, Any], data: Dict[str, pd.DataFrame]) -> bool:
+def edit_user(user_id: int, updates: Dict[str, Any], data: Dict[str, pd.DataFrame]):
     # Task: Edit user fields for a given user id and save changes.
     users = data["users"]
     mask = users["id"].astype(str) == str(user_id)
@@ -306,7 +306,7 @@ def edit_user(user_id: int, updates: Dict[str, Any], data: Dict[str, pd.DataFram
     return True
 
 
-def remove_user(user_id: int, data: Dict[str, pd.DataFrame]) -> bool:
+def remove_user(user_id: int, data: Dict[str, pd.DataFrame]):
     # Task: Remove a user row by id from users DataFrame.
     users = data["users"]
     mask = users["id"].astype(str) == str(user_id)
@@ -322,13 +322,13 @@ def remove_user(user_id: int, data: Dict[str, pd.DataFrame]) -> bool:
 # -----------------------------
 
 
-def view_all_appointments(data: Dict[str, pd.DataFrame]) -> pd.DataFrame:
+def view_all_appointments(data: Dict[str, pd.DataFrame]):
     # Task: Return the appointments DataFrame (pandas) for admin viewing.
     return data["appointments"].copy()
 
 
 def book_appointment(user_id: int, doctor_id: int, start_time: str, end_time: str,
-                     symptoms_summary: str, data: Dict[str, pd.DataFrame]) -> Dict[str, Any]:
+                     symptoms_summary: str, data: Dict[str, pd.DataFrame]):
     # Task: Create an appointment if no conflict and add to appointments DataFrame and save.
     if conflict_check(doctor_id, start_time, end_time, data):
         raise ValueError("Time conflict for the doctor")
@@ -360,7 +360,7 @@ def book_appointment(user_id: int, doctor_id: int, start_time: str, end_time: st
     return appt_row
 
 
-def cancel_appointment(appointment_id: int, data: Dict[str, pd.DataFrame]) -> bool:
+def cancel_appointment(appointment_id: int, data: Dict[str, pd.DataFrame]):
     # Task: Mark an appointment as canceled and save to CSV.
     appts = data["appointments"]
     mask = appts["id"].astype(str) == str(appointment_id)
@@ -376,13 +376,13 @@ def cancel_appointment(appointment_id: int, data: Dict[str, pd.DataFrame]) -> bo
 # -----------------------------
 
 
-def view_bills(data: Dict[str, pd.DataFrame]) -> pd.DataFrame:
+def view_bills(data: Dict[str, pd.DataFrame]):
     # Task: Return medical details DataFrame for admin/client viewing.
     return data["medical_details"].copy()
 
 
 def generate_bill(user_id: int, amount: float, diseases: List[str], medicines: List[str],
-                  prescription_text: str, data: Dict[str, pd.DataFrame], paid: bool = False) -> Dict[str, Any]:
+                  prescription_text: str, data: Dict[str, pd.DataFrame], paid: bool = False):
     # Task: Create a new bill entry in medical_details and save.
     meds = data["medical_details"]
     new_bill_id = get_next_id(meds, "bill_id")
@@ -401,7 +401,7 @@ def generate_bill(user_id: int, amount: float, diseases: List[str], medicines: L
     return bill_row
 
 
-def edit_bill(bill_id: int, updates: Dict[str, Any], data: Dict[str, pd.DataFrame]) -> bool:
+def edit_bill(bill_id: int, updates: Dict[str, Any], data: Dict[str, pd.DataFrame]):
     # Task: Edit an existing bill (medical_details row) and save.
     meds = data["medical_details"]
     mask = meds["bill_id"].astype(str) == str(bill_id)
@@ -419,7 +419,7 @@ def edit_bill(bill_id: int, updates: Dict[str, Any], data: Dict[str, pd.DataFram
 # -----------------------------
 
 
-def view_doctor_performance(doctor_id: int, data: Dict[str, pd.DataFrame]) -> Dict[str, Any]:
+def view_doctor_performance(doctor_id: int, data: Dict[str, pd.DataFrame]):
     # Task: Aggregate doctor's appointments and unique patients and return summary dictionary (no ratings).
     appts = data["appointments"]
     doctor_appts = appts[appts["doctor_id"].astype(str) == str(doctor_id)]
@@ -436,7 +436,7 @@ def view_doctor_performance(doctor_id: int, data: Dict[str, pd.DataFrame]) -> Di
 # -----------------------------
 
 
-def revenue_summary(data: Dict[str, pd.DataFrame]) -> pd.DataFrame:
+def revenue_summary(data: Dict[str, pd.DataFrame]):
     # Task (Pandas): Aggregate total consultation fees per doctor (from appointments) and return a DataFrame.
     appts = data["appointments"].copy()
     appts["fees_numeric"] = pd.to_numeric(
@@ -450,7 +450,7 @@ def revenue_summary(data: Dict[str, pd.DataFrame]) -> pd.DataFrame:
     return merged.sort_values("total_revenue_rs", ascending=False)
 
 
-def doctor_availability_dataframe(data: Dict[str, pd.DataFrame]) -> pd.DataFrame:
+def doctor_availability_dataframe(data: Dict[str, pd.DataFrame]):
     # Task (Pandas): Return doctors DataFrame with parsed availability columns for display (simple parsing).
     docs = data["doctors"].copy()
     docs["available_days_parsed"] = docs["available_days"].apply(
@@ -460,7 +460,7 @@ def doctor_availability_dataframe(data: Dict[str, pd.DataFrame]) -> pd.DataFrame
     return docs
 
 
-def search_doctor(filters: Dict[str, Any], data: Dict[str, pd.DataFrame]) -> pd.DataFrame:
+def search_doctor(filters: Dict[str, Any], data: Dict[str, pd.DataFrame]):
     # Task (Pandas): Search doctors by filters (specialization, available_day, language, consultation_mode).
     docs = doctor_availability_dataframe(data)
     df = docs.copy()
@@ -487,7 +487,7 @@ def search_doctor(filters: Dict[str, Any], data: Dict[str, pd.DataFrame]) -> pd.
 # -----------------------------
 
 
-def total_bills_amount(data: Dict[str, pd.DataFrame]) -> float:
+def total_bills_amount(data: Dict[str, pd.DataFrame]):
     # Task (NumPy): Sum all bills amount using numpy.
     meds = data["medical_details"].copy()
     arr = pd.to_numeric(meds["bill_amount_rs"], errors="coerce").fillna(
@@ -495,7 +495,7 @@ def total_bills_amount(data: Dict[str, pd.DataFrame]) -> float:
     return float(np.sum(arr))
 
 
-def median_fee_of_doctors(data: Dict[str, pd.DataFrame]) -> float:
+def median_fee_of_doctors(data: Dict[str, pd.DataFrame]):
     # Task (NumPy): Compute median of doctors' fee amounts (from doctors table).
     docs = data["doctors"].copy()
     fees_list = []
@@ -521,7 +521,7 @@ def median_fee_of_doctors(data: Dict[str, pd.DataFrame]) -> float:
     return float(np.median(arr))
 
 
-def count_unpaid_bills(data: Dict[str, pd.DataFrame]) -> int:
+def count_unpaid_bills(data: Dict[str, pd.DataFrame]):
     # Task (NumPy): Count unpaid bills (numpy used for array operations).
     meds = data["medical_details"].copy()
     unpaid_mask = meds["paid"].str.lower() != "yes"
@@ -529,7 +529,7 @@ def count_unpaid_bills(data: Dict[str, pd.DataFrame]) -> int:
     return int(np.sum(arr))
 
 
-def doctor_patient_counts(data: Dict[str, pd.DataFrame]) -> pd.DataFrame:
+def doctor_patient_counts(data: Dict[str, pd.DataFrame]):
     # Task (NumPy & Pandas): Compute number of unique patients per doctor.
     appts = data["appointments"].copy()
     agg = appts.groupby("doctor_id")["user_id"].nunique().reset_index().rename(
@@ -542,7 +542,7 @@ def doctor_patient_counts(data: Dict[str, pd.DataFrame]) -> pd.DataFrame:
 # -----------------------------
 
 
-def check_doctor_available(doctor_id: int, requested_start: str, requested_end: str, data: Dict[str, pd.DataFrame]) -> bool:
+def check_doctor_available(doctor_id: int, requested_start: str, requested_end: str, data: Dict[str, pd.DataFrame]):
     # Task: Check doctor's weekly availability, not_available_dates, and conflict with current appointments.
     docs = data["doctors"]
     doc = docs[docs["id"].astype(str) == str(doctor_id)]
@@ -574,7 +574,7 @@ def check_doctor_available(doctor_id: int, requested_start: str, requested_end: 
     return True
 
 
-def mark_doctor_unavailable(doctor_id: int, date_str: str, data: Dict[str, pd.DataFrame]) -> bool:
+def mark_doctor_unavailable(doctor_id: int, date_str: str, data: Dict[str, pd.DataFrame]):
     # Task: Add a date to a doctor's not_available_dates list and save.
     docs = data["doctors"]
     mask = docs["id"].astype(str) == str(doctor_id)
@@ -594,14 +594,14 @@ def mark_doctor_unavailable(doctor_id: int, date_str: str, data: Dict[str, pd.Da
 # -----------------------------
 
 
-def get_user_appointments(user_id: int, data: Dict[str, pd.DataFrame]) -> pd.DataFrame:
+def get_user_appointments(user_id: int, data: Dict[str, pd.DataFrame]):
     # Task: Return a DataFrame of appointments belonging to a particular user.
     appts = data["appointments"].copy()
     user_appts = appts[appts["user_id"].astype(str) == str(user_id)]
     return user_appts.sort_values("start_time")
 
 
-def get_user_medical_records(user_id: int, data: Dict[str, pd.DataFrame]) -> pd.DataFrame:
+def get_user_medical_records(user_id: int, data: Dict[str, pd.DataFrame]):
     # Task: Return medical_details rows linked to a user.
     meds = data["medical_details"].copy()
     user_meds = meds[meds["user_id"].astype(str) == str(user_id)]
