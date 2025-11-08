@@ -606,8 +606,14 @@ def get_user_medical_records(user_id, data):
     meds = data["medical_details"].copy()
     user_meds = meds[meds["user_id"].astype(str) == str(user_id)]
     return user_meds
+
+    
 # Poojitha T's code ends---------------------------------------------------------------------------------------------
+
+
+
 # Alok's code starts here----------------------------------------------------------------------------------------------
+
 # health_portal
 
 class HealthPortal:
@@ -1037,4 +1043,5 @@ class HealthPortal:
 if __name__ == "__main__":
     portal = HealthPortal()
     portal.main_menu()
+
 # Alok's code ends-----------------------------------------------------------------------------------------------------------------------
