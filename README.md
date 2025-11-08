@@ -1,14 +1,22 @@
-# Health.admin-client-access-management
-# ------------------------------------HEALTH PORTAL-------------------------------------------from here
+# ------------------------------------HEALTH PORTAL-----------------------------------------
+"""
+CONTRIBUITIONS:
+
+Ganesh Madduri--- line 50 to 218
+Poojitha P--- line 223 to 374
+Harsha--- line 380 to 496 
+Poojitha T--- line 498 to 609
+Alok--- line 615 to 1047
+"""
+
 import os
 import csv
 from datetime import datetime, timedelta, date, time
-from typing import Dict, Any, List, Optional, Tuple
 import pandas as pd
 import numpy as np
 
 
-# file paths (assume same folder
+# file paths (assume same folder)
 
 APPOINTMENTS_CSV = "appointments.csv"
 DOCTORS_CSV = "doctors.csv"
@@ -18,12 +26,12 @@ USERS_CSV = "users.csv"
 # Ensure CSV headers (create if missing)
 
 
-def ensure_file_exists(path: str, headers: List[str]):
-    # Task: Ensure a CSV exists, create with headers if missing.
+def ensure_file_exists(path, headers):
+    # Ensure a CSV exists, if missing then create with given headers.
     if not os.path.exists(path):
-        with open(path, "w", newline="", encoding="utf-8") as f:
-            writer = csv.writer(f)
-            writer.writerow(headers)
+        with open(path, "w", newline="", encoding="utf-8") as f:  # utf-8 supports all characters
+            writer = csv.writer(f)  # to be able to write rows in csv file
+            writer.writerow(headers)  # writes a single row to the file f
 
 
 ensure_file_exists(APPOINTMENTS_CSV, [
@@ -40,11 +48,10 @@ ensure_file_exists(MEDICAL_DETAILS_CSV, [
 ensure_file_exists(USERS_CSV, [
     "id", "username", "name", "password", "role", "email", "phone", "dob", "gender", "bill_ids", "emergency_contact"
 ])
+# Ganesh begins-----------------------------------------------------------------------------------------------
 
-# this below format of function signature means, value is type "str" and -> returns List which  consist of strings
 
-
-def parse_list_string(value: str):
+def parse_list_string(value):
     # parse a string that looks like a simple Python list into a Python list of stripped strings.
     if value is None:
         return []
@@ -74,8 +81,8 @@ def parse_list_string(value: str):
     return [p.strip() for p in v.split(",") if p.strip()]
 
 
-def parse_dict_like_string(value: str):
-    # Task: Parse a very simple dict-like string into a dictionary (only handles basic "key": value pairs).
+def parse_dict_like_string(value):
+    # Parse a very simple dict-like string into a dictionary (only handles basic "key": value pairs).
     if value is None:
         return {}
     v = str(value).strip()
@@ -121,12 +128,12 @@ def parse_dict_like_string(value: str):
     return {}
 
 
-def load_csv_as_df(path: str) -> pd.DataFrame:
+def load_csv_as_df(path):
     # load a CSV file into a pandas DataFrame (keeping all fields as strings).
     return pd.read_csv(path, dtype=str, keep_default_na=False)
 
 
-def save_df_to_csv(df: pd.DataFrame, path: str):
+def save_df_to_csv(df, path):
     # Save a pandas DataFrame back to its CSV file path.
     df.to_csv(path, index=False)
 
@@ -145,7 +152,7 @@ def load_data():
     return {"appointments": appts, "doctors": docs, "medical_details": meds, "users": users}
 
 
-def save_data(data: Dict[str, pd.DataFrame]):
+def save_data(data):
     # Task: Save all DataFrames (appointments, doctors, medical_details, users) back to their CSVs.
     save_df_to_csv(data["appointments"], APPOINTMENTS_CSV)
     save_df_to_csv(data["doctors"], DOCTORS_CSV)
@@ -153,7 +160,7 @@ def save_data(data: Dict[str, pd.DataFrame]):
     save_df_to_csv(data["users"], USERS_CSV)
 
 
-def get_next_id(df: pd.DataFrame, id_col: str = "id"):
+def get_next_id(df, id_col):
     # Return the next integer ID for a DataFrame (automatically increase).
     if df.empty:
         return 1
@@ -167,8 +174,8 @@ def get_next_id(df: pd.DataFrame, id_col: str = "id"):
         return len(df) + 1
 
 
-def conflict_check(doctor_id: int, start_time: str, end_time: str, data: Dict[str, pd.DataFrame],
-                   exclude_appointment_id: Optional[int] = None) :
+def conflict_check(doctor_id, start_time, end_time, data,
+                   exclude_appointment_id):
     # Check whether a proposed appointment time overlaps with existing appointments of the same doctor.
     appts = data["appointments"]
     try:
@@ -198,7 +205,7 @@ def conflict_check(doctor_id: int, start_time: str, end_time: str, data: Dict[st
 # Authentication
 
 
-def verify_login(username: str, password: str, data: Dict[str, pd.DataFrame]):
+def verify_login(username, password, data):
     # Verify provided credentials against stored plain password; return user row as dict on success.
     users = data["users"]
     matched = users[users["username"] == username]
@@ -209,13 +216,13 @@ def verify_login(username: str, password: str, data: Dict[str, pd.DataFrame]):
         return matched.iloc[0].to_dict()
     return None
 
-# -------------------------------------------------------upto here
+# ganesh upto here--------------------------------------------------------------------------------------------
 
 
 # Doctor Management (Admin)
-
-def add_doctor(doctor_info: Dict[str, Any], data: Dict[str, pd.DataFrame]):
-    # Task: Add a new doctor row into doctors DataFrame and save.
+# poojitha p begins---------------------------------------------------------------------------------------------
+def add_doctor(doctor_info, data):
+    # Add a new doctor row into doctors DataFrame and save.
     docs = data["doctors"]
     new_id = get_next_id(docs, "id")
     doc_row = {
@@ -238,7 +245,7 @@ def add_doctor(doctor_info: Dict[str, Any], data: Dict[str, pd.DataFrame]):
     return doc_row
 
 
-def edit_doctor(doctor_id: int, updates: Dict[str, Any], data: Dict[str, pd.DataFrame]):
+def edit_doctor(doctor_id, updates, data):
     # Task: Edit fields for a doctor row identified by doctor_id and save changes.
     docs = data["doctors"]
     mask = docs["id"].astype(str) == str(doctor_id)
@@ -252,7 +259,7 @@ def edit_doctor(doctor_id: int, updates: Dict[str, Any], data: Dict[str, pd.Data
     return True
 
 
-def remove_doctor(doctor_id: int, data: Dict[str, pd.DataFrame]):
+def remove_doctor(doctor_id, data):
     # Task: Remove a doctor from the doctors DataFrame (basic deletion).
     docs = data["doctors"]
     mask = docs["id"].astype(str) == str(doctor_id)
@@ -264,11 +271,11 @@ def remove_doctor(doctor_id: int, data: Dict[str, pd.DataFrame]):
     return True
 
 # -----------------------------
-# User Management (Admin & Client)
+# User Management (Admin
 # -----------------------------
 
 
-def add_user(user_info: Dict[str, Any], data: Dict[str, pd.DataFrame]):
+def add_user(user_info, data):
     # Task: Add a new user to users DataFrame; stores plain password as provided.
     users = data["users"]
     new_id = get_next_id(users, "id")
@@ -292,7 +299,7 @@ def add_user(user_info: Dict[str, Any], data: Dict[str, pd.DataFrame]):
     return user_row
 
 
-def edit_user(user_id: int, updates: Dict[str, Any], data: Dict[str, pd.DataFrame]):
+def edit_user(user_id, updates, data):
     # Task: Edit user fields for a given user id and save changes.
     users = data["users"]
     mask = users["id"].astype(str) == str(user_id)
@@ -306,7 +313,7 @@ def edit_user(user_id: int, updates: Dict[str, Any], data: Dict[str, pd.DataFram
     return True
 
 
-def remove_user(user_id: int, data: Dict[str, pd.DataFrame]):
+def remove_user(user_id, data):
     # Task: Remove a user row by id from users DataFrame.
     users = data["users"]
     mask = users["id"].astype(str) == str(user_id)
@@ -317,19 +324,70 @@ def remove_user(user_id: int, data: Dict[str, pd.DataFrame]):
     save_data(data)
     return True
 
-# -----------------------------
-# Appointments Management (no force-create, no reschedule)
-# -----------------------------
+
+def generate_bill(user_id, amount, diseases, medicines,
+                  prescription_text, data, paid):
+    # Create a new bill entry in medical_details and save.
+    meds = data["medical_details"]
+    new_bill_id = get_next_id(meds, "bill_id")
+    bill_row = {
+        "bill_id": new_bill_id,
+        "user_id": user_id,
+        "bill_amount_rs": float(amount),
+        "paid": "yes" if paid else "no",
+        "diseases": str(diseases),
+        "medicines": str(medicines),
+        "prescription": prescription_text
+    }
+    meds = pd.concat([meds, pd.DataFrame([bill_row])], ignore_index=True)
+    data["medical_details"] = meds
+    save_data(data)
+    return bill_row
 
 
-def view_all_appointments(data: Dict[str, pd.DataFrame]):
-    # Task: Return the appointments DataFrame (pandas) for admin viewing.
+def edit_bill(bill_id, updates, data):
+    #  Edit an existing bill (medical_details row and save.
+    meds = data["medical_details"]
+    mask = meds["bill_id"].astype(str) == str(bill_id)
+    if not mask.any():
+        return False
+    for k, v in updates.items():
+        if k in meds.columns:
+            meds.loc[mask, k] = v
+    data["medical_details"] = meds
+    save_data(data)
+    return True
+
+
+def view_doctor_performance(doctor_id, data):
+    # Aggregate doctor's appointments and unique patients and return summary dictionary.
+    appts = data["appointments"]
+    doctor_appts = appts[appts["doctor_id"].astype(str) == str(doctor_id)]
+    total_patients = doctor_appts["user_id"].nunique()
+    summary = {
+        "doctor_id": doctor_id,
+        "total_appointments": int(len(doctor_appts)),
+        "unique_patients": int(total_patients)
+    }
+    return summary
+
+# poojitha p upto here---------------------------------------------------------------------------------------------
+
+# -----------------------------
+# Appointments Management
+# -----------------------------
+
+# Harsha begins-------------------------------------------------------------------------------------------------
+
+
+def view_all_appointments(data):
+    # Return the appointments DataFrame for admin viewing.
     return data["appointments"].copy()
 
 
-def book_appointment(user_id: int, doctor_id: int, start_time: str, end_time: str,
-                     symptoms_summary: str, data: Dict[str, pd.DataFrame]):
-    # Task: Create an appointment if no conflict and add to appointments DataFrame and save.
+def book_appointment(user_id, doctor_id, start_time, end_time,
+                     symptoms_summary, data):
+    #  Create an appointment if no conflict and add to appointments DataFrame and save.
     if conflict_check(doctor_id, start_time, end_time, data):
         raise ValueError("Time conflict for the doctor")
     appts = data["appointments"]
@@ -360,8 +418,8 @@ def book_appointment(user_id: int, doctor_id: int, start_time: str, end_time: st
     return appt_row
 
 
-def cancel_appointment(appointment_id: int, data: Dict[str, pd.DataFrame]):
-    # Task: Mark an appointment as canceled and save to CSV.
+def cancel_appointment(appointment_id, data):
+    #  Mark an appointment as canceled and save to CSV.
     appts = data["appointments"]
     mask = appts["id"].astype(str) == str(appointment_id)
     if not mask.any():
@@ -376,92 +434,13 @@ def cancel_appointment(appointment_id: int, data: Dict[str, pd.DataFrame]):
 # -----------------------------
 
 
-def view_bills(data: Dict[str, pd.DataFrame]):
-    # Task: Return medical details DataFrame for admin/client viewing.
+def view_bills(data):
+    # Return medical details DataFrame for admin/client viewing.
     return data["medical_details"].copy()
 
 
-def generate_bill(user_id: int, amount: float, diseases: List[str], medicines: List[str],
-                  prescription_text: str, data: Dict[str, pd.DataFrame], paid: bool = False):
-    # Task: Create a new bill entry in medical_details and save.
-    meds = data["medical_details"]
-    new_bill_id = get_next_id(meds, "bill_id")
-    bill_row = {
-        "bill_id": new_bill_id,
-        "user_id": user_id,
-        "bill_amount_rs": float(amount),
-        "paid": "yes" if paid else "no",
-        "diseases": str(diseases),
-        "medicines": str(medicines),
-        "prescription": prescription_text
-    }
-    meds = pd.concat([meds, pd.DataFrame([bill_row])], ignore_index=True)
-    data["medical_details"] = meds
-    save_data(data)
-    return bill_row
-
-
-def edit_bill(bill_id: int, updates: Dict[str, Any], data: Dict[str, pd.DataFrame]):
-    # Task: Edit an existing bill (medical_details row) and save.
-    meds = data["medical_details"]
-    mask = meds["bill_id"].astype(str) == str(bill_id)
-    if not mask.any():
-        return False
-    for k, v in updates.items():
-        if k in meds.columns:
-            meds.loc[mask, k] = v
-    data["medical_details"] = meds
-    save_data(data)
-    return True
-
-# -----------------------------
-# Doctor performance (without ratings)
-# -----------------------------
-
-
-def view_doctor_performance(doctor_id: int, data: Dict[str, pd.DataFrame]):
-    # Task: Aggregate doctor's appointments and unique patients and return summary dictionary (no ratings).
-    appts = data["appointments"]
-    doctor_appts = appts[appts["doctor_id"].astype(str) == str(doctor_id)]
-    total_patients = doctor_appts["user_id"].nunique()
-    summary = {
-        "doctor_id": doctor_id,
-        "total_appointments": int(len(doctor_appts)),
-        "unique_patients": int(total_patients)
-    }
-    return summary
-
-# -----------------------------
-# Analytics functions (pandas and numpy retained selectively)
-# -----------------------------
-
-
-def revenue_summary(data: Dict[str, pd.DataFrame]):
-    # Task (Pandas): Aggregate total consultation fees per doctor (from appointments) and return a DataFrame.
-    appts = data["appointments"].copy()
-    appts["fees_numeric"] = pd.to_numeric(
-        appts["fees"], errors="coerce").fillna(0.0)
-    agg = appts.groupby("doctor_id", dropna=False)["fees_numeric"].sum().reset_index().rename(
-        columns={"fees_numeric": "total_revenue_rs"}
-    )
-    docs = data["doctors"][["id", "name"]].copy()
-    docs.rename(columns={"id": "doctor_id"}, inplace=True)
-    merged = agg.merge(docs, on="doctor_id", how="left")
-    return merged.sort_values("total_revenue_rs", ascending=False)
-
-
-def doctor_availability_dataframe(data: Dict[str, pd.DataFrame]):
-    # Task (Pandas): Return doctors DataFrame with parsed availability columns for display (simple parsing).
-    docs = data["doctors"].copy()
-    docs["available_days_parsed"] = docs["available_days"].apply(
-        parse_list_string)
-    docs["not_available_dates_parsed"] = docs["not_available_dates"].apply(
-        parse_list_string)
-    return docs
-
-
-def search_doctor(filters: Dict[str, Any], data: Dict[str, pd.DataFrame]):
-    # Task (Pandas): Search doctors by filters (specialization, available_day, language, consultation_mode).
+def search_doctor(filters, data):
+    #  Search doctors by filters (specialization, available_day, language, consultation_mode).
     docs = doctor_availability_dataframe(data)
     df = docs.copy()
     spec = filters.get("specialization")
@@ -482,68 +461,9 @@ def search_doctor(filters: Dict[str, Any], data: Dict[str, pd.DataFrame]):
             str(mode), case=False, na=False)]
     return df
 
-# -----------------------------
-# Selected NumPy-based helpers retained (others removed)
-# -----------------------------
 
-
-def total_bills_amount(data: Dict[str, pd.DataFrame]):
-    # Task (NumPy): Sum all bills amount using numpy.
-    meds = data["medical_details"].copy()
-    arr = pd.to_numeric(meds["bill_amount_rs"], errors="coerce").fillna(
-        0.0).to_numpy(dtype=float)
-    return float(np.sum(arr))
-
-
-def median_fee_of_doctors(data: Dict[str, pd.DataFrame]):
-    # Task (NumPy): Compute median of doctors' fee amounts (from doctors table).
-    docs = data["doctors"].copy()
-    fees_list = []
-    for v in docs["fees"]:
-        parsed = parse_dict_like_string(v)
-        if isinstance(parsed, dict):
-            nums = []
-            for val in parsed.values():
-                try:
-                    nums.append(float(val))
-                except Exception:
-                    pass
-            if nums:
-                fees_list.append(np.mean(nums))
-        else:
-            try:
-                fees_list.append(float(str(v)))
-            except Exception:
-                pass
-    if not fees_list:
-        return float("nan")
-    arr = np.array(fees_list, dtype=float)
-    return float(np.median(arr))
-
-
-def count_unpaid_bills(data: Dict[str, pd.DataFrame]):
-    # Task (NumPy): Count unpaid bills (numpy used for array operations).
-    meds = data["medical_details"].copy()
-    unpaid_mask = meds["paid"].str.lower() != "yes"
-    arr = unpaid_mask.to_numpy()
-    return int(np.sum(arr))
-
-
-def doctor_patient_counts(data: Dict[str, pd.DataFrame]):
-    # Task (NumPy & Pandas): Compute number of unique patients per doctor.
-    appts = data["appointments"].copy()
-    agg = appts.groupby("doctor_id")["user_id"].nunique().reset_index().rename(
-        columns={"user_id": "unique_patient_count"})
-    agg["unique_patient_count"] = agg["unique_patient_count"].astype(int)
-    return agg
-
-# -----------------------------
-# Availability checks
-# -----------------------------
-
-
-def check_doctor_available(doctor_id: int, requested_start: str, requested_end: str, data: Dict[str, pd.DataFrame]):
-    # Task: Check doctor's weekly availability, not_available_dates, and conflict with current appointments.
+def check_doctor_available(doctor_id, requested_start, requested_end, data):
+    # Check doctor's weekly availability, not_available_dates, and conflict with current appointments.
     docs = data["doctors"]
     doc = docs[docs["id"].astype(str) == str(doctor_id)]
     if doc.empty:
@@ -573,9 +493,93 @@ def check_doctor_available(doctor_id: int, requested_start: str, requested_end: 
         return False
     return True
 
+# Harsha ends---------------------------------------------------------------------------------------------------
 
-def mark_doctor_unavailable(doctor_id: int, date_str: str, data: Dict[str, pd.DataFrame]):
-    # Task: Add a date to a doctor's not_available_dates list and save.
+# poojita T begins---------------------------------------------------------------------------------------------
+
+
+def revenue_summary(data):
+    # Aggregate total consultation fees per doctor (from appointments) and return a DataFrame.
+    appts = data["appointments"].copy()
+    appts["fees_numeric"] = pd.to_numeric(
+        appts["fees"], errors="coerce").fillna(0.0)
+    agg = appts.groupby("doctor_id", dropna=False)["fees_numeric"].sum().reset_index().rename(
+        columns={"fees_numeric": "total_revenue_rs"}
+    )
+    docs = data["doctors"][["id", "name"]].copy()
+    docs.rename(columns={"id": "doctor_id"}, inplace=True)
+    merged = agg.merge(docs, on="doctor_id", how="left")
+    return merged.sort_values("total_revenue_rs", ascending=False)
+
+
+def doctor_availability_dataframe(data):
+    # Return doctors DataFrame with parsed availability columns for display (simple parsing).
+    docs = data["doctors"].copy()
+    docs["available_days_parsed"] = docs["available_days"].apply(
+        parse_list_string)
+    docs["not_available_dates_parsed"] = docs["not_available_dates"].apply(
+        parse_list_string)
+    return docs
+
+
+def total_bills_amount(data):
+    # Sum all bills amount using numpy.
+    meds = data["medical_details"].copy()
+    arr = pd.to_numeric(meds["bill_amount_rs"], errors="coerce").fillna(
+        0.0).to_numpy(dtype=float)
+    return float(np.sum(arr))
+
+
+def median_fee_of_doctors(data):
+    # Task (NumPy): Compute median of doctors' fee amounts (from doctors table).
+    docs = data["doctors"].copy()
+    fees_list = []
+    for v in docs["fees"]:
+        parsed = parse_dict_like_string(v)
+        if isinstance(parsed, dict):
+            nums = []
+            for val in parsed.values():
+                try:
+                    nums.append(float(val))
+                except Exception:
+                    pass
+            if nums:
+                fees_list.append(np.mean(nums))
+        else:
+            try:
+                fees_list.append(float(str(v)))
+            except Exception:
+                pass
+    if not fees_list:
+        return float("nan")
+    arr = np.array(fees_list, dtype=float)
+    return float(np.median(arr))
+
+
+def count_unpaid_bills(data):
+    # Task (NumPy): Count unpaid bills (numpy used for array operations).
+    meds = data["medical_details"].copy()
+    unpaid_mask = meds["paid"].str.lower() != "yes"
+    arr = unpaid_mask.to_numpy()
+    return int(np.sum(arr))
+
+
+def doctor_patient_counts(data):
+    # (NumPy & Pandas): Compute number of unique patients per doctor.
+    appts = data["appointments"].copy()
+    agg = appts.groupby("doctor_id")["user_id"].nunique().reset_index().rename(
+        columns={"user_id": "unique_patient_count"})
+    agg["unique_patient_count"] = agg["unique_patient_count"].astype(int)
+    return agg
+
+# -----------------------------
+# Availability checks
+# -----------------------------
+
+
+
+def mark_doctor_unavailable(doctor_id, date_str, data):
+    # Add a date to a doctor's not_available_dates list and save.
     docs = data["doctors"]
     mask = docs["id"].astype(str) == str(doctor_id)
     if not mask.any():
@@ -589,37 +593,31 @@ def mark_doctor_unavailable(doctor_id: int, date_str: str, data: Dict[str, pd.Da
     save_data(data)
     return True
 
-# -----------------------------
-# Miscellaneous helpers
-# -----------------------------
 
-
-def get_user_appointments(user_id: int, data: Dict[str, pd.DataFrame]):
-    # Task: Return a DataFrame of appointments belonging to a particular user.
+def get_user_appointments(user_id, data):
+    # Return a DataFrame of appointments belonging to a particular user.
     appts = data["appointments"].copy()
     user_appts = appts[appts["user_id"].astype(str) == str(user_id)]
     return user_appts.sort_values("start_time")
 
 
-def get_user_medical_records(user_id: int, data: Dict[str, pd.DataFrame]):
-    # Task: Return medical_details rows linked to a user.
+def get_user_medical_records(user_id, data):
+    #  Return medical_details rows linked to a user.
     meds = data["medical_details"].copy()
     user_meds = meds[meds["user_id"].astype(str) == str(user_id)]
     return user_meds
-
+# Poojitha T's code ends---------------------------------------------------------------------------------------------
+# Alok's code starts here----------------------------------------------------------------------------------------------
 # health_portal
-# -------------------------------------------------from here
-
 
 class HealthPortal:
-
     # Main CLI interface class that orchestrates operations and provides simple shell-based menus as methods
     # all the menus/pages are a method in this portal class so that we can properly go from one page to any other
-    # page from set of all the pages, this portal uses helper functions to read and modify data from the database
+    # required page, this portal uses above helper functions to read and modify data from the database
 
     def __init__(self):
         self.data = load_data()
-        self.current_user: Optional[Dict[str, Any]] = None
+        self.current_user = None
 
     def header(self, title: str):
         # Print a nice header for CLI pages.
@@ -662,10 +660,9 @@ class HealthPortal:
             self.admin_dashboard()
         else:
             self.client_dashboard()
-# -------------------------------------------------------------------------upto here
 
     def register(self):
-        # Task: Prompt for minimal user info and create a new user record.
+
         username = input("Choose a username: ").strip()
         name = input("Full name: ").strip()
         password = input("Choose a password: ").strip()
@@ -688,14 +685,14 @@ class HealthPortal:
         return created
 
     def create_admin_flow(self):
-        # Task: Create a new admin account if the secret matches; default admin password will be 'password'.
+        # Create a new admin account if the secret matches; admin password will be 'password'.
         secret = input("Enter admin creation secret: ").strip()
         if secret != "password":
             print("Incorrect secret. Cannot create admin.")
             return
         username = input("Admin username: ").strip()
         name = input("Admin full name: ").strip()
-        # per instructions, default/admin password is 'password'
+        # default admin password is 'password'
         admin_password = "password"
         phone = input("Phone (optional): ").strip()
         email = input("Email (optional): ").strip()
@@ -719,7 +716,7 @@ class HealthPortal:
     # Admin Dashboard
     # -------------------
     def admin_dashboard(self):
-        # Task: Admin menu with management options and analytics (reduced features).
+        # Task: Admin menu with management options and analytics.
         while True:
             self.header("ADMIN DASHBOARD")
             print("1. Manage Doctors")
@@ -750,7 +747,7 @@ class HealthPortal:
                 print("Invalid choice.")
 
     def manage_doctors_menu(self):
-        # Task: Admin menu for doctor CRUD operations.
+        #  Admin menu for doctor CRUD operations.
         while True:
             self.header("MANAGE DOCTORS")
             print("1. Add Doctor")
@@ -803,7 +800,7 @@ class HealthPortal:
                 print("Invalid choice.")
 
     def manage_users_menu(self):
-        # Task: Admin menu to add/edit/remove users.
+        # Task- Admin menu to add/edit/remove users.
         while True:
             self.header("MANAGE USERS")
             print("1. Add User")
@@ -845,7 +842,7 @@ class HealthPortal:
                 print("Invalid choice.")
 
     def admin_analytics_menu(self):
-        # Task: Admin analytics menu: revenue, bills, doctor performance.
+        #  Admin analytics menu: revenue, bills, doctor performance.
         while True:
             self.header("ADMIN ANALYTICS")
             print("1. Revenue Summary (per doctor)")
@@ -859,8 +856,9 @@ class HealthPortal:
                 print(df.to_string(index=False))
                 input("Enter to continue...")
             elif ch == "2":
-                total = total_bills_amount(self.data)
-                print(f"Total bills amount: Rs {total:.2f}")
+                print("Not available for now, please try again later!")
+            #     total = total_bills_amount(self.data)
+            #     print(f"Total bills amount: Rs {total:.2f}")
                 input("Enter to continue...")
             elif ch == "3":
                 cnt = count_unpaid_bills(self.data)
@@ -875,9 +873,9 @@ class HealthPortal:
                 break
             else:
                 print("Invalid choice.")
-
+                
     # -------------------
-    # Client Dashboard (ratings removed)
+    # Client Dashboard
     # -------------------
     def client_dashboard(self):
         # Task: Client menu with actions for logged-in users.
@@ -943,7 +941,7 @@ class HealthPortal:
                     row["username"], updates["password"], self.data) or self.current_user
 
     def search_doctors_ui(self):
-        # Task: Prompt the user for search filters and display matching doctors.
+
         spec = input("Specialization (leave blank for any): ").strip()
         day = input("Day (Mon/Tue/Wed... leave blank): ").strip()
         lang = input("Language (leave blank): ").strip()
@@ -964,11 +962,9 @@ class HealthPortal:
         input("Enter to continue...")
 
     def book_appointment_ui(self):
-        # Task: CLI flow to book an appointment for current user:
         # - ask date as DD-MM-YYYY
         # - ask hour as HH (24-hour)
-        # - try to allocate any available 20-minute slot in that hour (00-20,20-40,40-60)
-        # - if none free, ask user to choose other hour (loop until success or cancel)
+
         uid = int(self.current_user["id"])
         did_raw = input("Doctor id: ").strip()
         try:
@@ -978,6 +974,7 @@ class HealthPortal:
             return
         # Validate doctor exists
         docs = self.data["doctors"]
+        # boolean indexing/masking i.e search based on the condition and .iloc[0] would give first row that matches
         if docs[docs["id"].astype(str) == str(did)].empty:
             print("Doctor not found.")
             return
@@ -1021,7 +1018,7 @@ class HealthPortal:
                 summary = input("Symptoms summary (short): ").strip()
                 appt = book_appointment(
                     uid, did, slot_found[0], slot_found[1], summary, self.data)
-                # display human-friendly time
+
                 human_start = datetime.fromisoformat(
                     slot_found[0]).strftime("%d-%m-%Y %H:%M")
                 human_end = datetime.fromisoformat(
@@ -1034,16 +1031,10 @@ class HealthPortal:
                 print(
                     f"No 20-minute slot available in hour {hour_int:02d}. Please choose another hour or cancel (c).")
                 continue
-
-
 # -----------------------------
-# If run as script, start portal
+# If run directly, start portal
 # -----------------------------
 if __name__ == "__main__":
     portal = HealthPortal()
     portal.main_menu()
-
-
-# Main CLI interface class that orchestrates operations and provides simple shell-based menus as methods
-    # all the menus/pages are a method in this portal class so that we can properly go from one page to any other
-    # page from set of all the pages, this portal uses helper functions to read and modify data from the database
+# Alok's code ends-----------------------------------------------------------------------------------------------------------------------
