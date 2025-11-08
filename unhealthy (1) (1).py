@@ -944,9 +944,6 @@ class HealthPortal:
             if "password" in updates:
                 self.current_user = verify_login(
                     row["username"], updates["password"], self.data) or self.current_user
-# Alok's code ends-----------------------------------------------------------------------------------------------------------------------
-# Harsha re-begins--------------------------------------------------------------------------------------------------------------------
-
     def search_doctors_ui(self):
 
         spec = input("Specialization (leave blank for any): ").strip()
@@ -1038,12 +1035,11 @@ class HealthPortal:
                 print(
                     f"No 20-minute slot available in hour {hour_int:02d}. Please choose another hour or cancel (c).")
                 continue
-
-
-# Harsha's code ends-----------------------------------------------------------------------------------------------------------------------------------
 # -----------------------------
 # If run directly, start portal
 # -----------------------------
 if __name__ == "__main__":
     portal = HealthPortal()
     portal.main_menu()
+# Alok's code ends-----------------------------------------------------------------------------------------------------------------------
+
